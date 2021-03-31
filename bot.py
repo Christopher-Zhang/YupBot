@@ -37,8 +37,17 @@ async def on_error(event, *args, **kwargs):
 async def on_ready():
     print(f'{bot.user.name} has connected to discord!')
 
-# commands
-@bot.command(name='register', help='For first time users, let\'s set you up with a bank account so you can gamble it all away!')
+#:
+#: TEMP GAME CONTROL
+#:
+active_games = {}
+
+#: 
+#: BEGIN COMMANDS
+#:
+
+#: Utility
+@bot.command(name='init', help='For first time users, let\'s set you up with a bank account so you can gamble it all away!')
 async def register(ctx):
     __id = ctx.author.id
     __mention = ctx.author.mention
@@ -74,8 +83,12 @@ async def check_balance(ctx, *args):
         balance = doc["balance"]
         message = "The user " + str(member.mention) + " currently has a balance of $" + str(balance)
     else:
-        message = "The user " + str(member.mention) + " is not registered yet. Register using: \"!!register\""
+        message = "The user " + str(member.mention) + " is not registered yet. Register using: \"!!init\""
     await ctx.channel.send(message)
+
+@bot.command(name='ping', help='Pong!')
+async def ping(ctx):
+    await ctx.channel.send("Pong!")
 
 @bot.command(name='test', help='For debugging purposes')
 async def test(ctx, *args):
@@ -92,6 +105,8 @@ async def test(ctx, *args):
     print("id:", author.id)
     print("member:", member)
 
+
+#: Fun Commands
 @bot.command(name='gamble', help='This is what you came here for.\nUsage: \"!!gamble [amount] ...\"')
 async def gamble(ctx, amount, *args):
     message = "error"
@@ -139,9 +154,11 @@ async def gamble(ctx, amount, *args):
                 else:
                     message = "Invalid command"
     else:
-        message = str(author.mention) + " You are not registered yet. Register using: \"!!register\""
+        message = str(author.mention) + " You are not registered yet. Register using: \"!!init\""
     await ctx.channel.send(message)
-
+@bot.command(name='blackjack', help="Under Construction")
+async def blackjack(ctx):
+    await ctx.channel.send("Blackjack is under construction")
 @bot.command(name='kait', help='You know what this does...')
 async def kait(ctx):
     if random.random() > 0.5:

@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import time
 import datetime
 from datetime import timedelta
 
@@ -12,6 +13,9 @@ class PandaAPI:
         self.LCS_ID = 4198
         self.ONE_WEEK = timedelta(days=7)
         self.GMT_TO_EST = timedelta(hours=5)
+        time_offset = -time.timezone
+        is_dst = time.daylight and time.localtime().tm_isdst > 0
+        self.LOCAL_OFFSET = round(time_offset / (60 * 60)) + is_dst
 
     def query_panda(self, path, parameters):
         response = requests.get(self.base_url + path + self.auth + parameters)
@@ -72,6 +76,8 @@ class PandaAPI:
         match_time = datetime.datetime.strptime(match_time, "%Y-%m-%dT%H:%M:%SZ") - utc_offset
         date_string = match_time.strftime("%x")
         time_string = match_time.strftime("%I:%M%p")
+        if time_string[0] == '0':
+            time_string = time_string[1:]
         day_of_week = match_time.strftime("%A")
         day = match_time.strftime('%d')
         if day[0] == '0':
@@ -84,9 +90,9 @@ class PandaAPI:
     def generate_schedule_message(self, matches, utc_offset):
         message = ""
         for match in matches:
-            message += self.match_to_schedule_string(match,5) + "\n"
+            message += self.match_to_schedule_string(match,-self.LOCAL_OFFSET) + "\n"
         return message
     def get_schedule_message(self, league_id_string):
         matches = self.get_matches_within_week(league_id_string)
-        message = self.generate_schedule_message(matches,5)
+        message = self.generate_schedule_message(matches,-self.LOCAL_OFFSET)
         return message
